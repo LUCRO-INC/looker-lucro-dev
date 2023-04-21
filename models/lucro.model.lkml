@@ -3,12 +3,12 @@ connection: "lucroapp_replication_bigquery"
 include: "/views/*.view.lkml"
 
 
-datagroup: lucro_default_datagroup {
+datagroup: lucro_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
   max_cache_age: "1 hour"
 }
 
-persist_with: lucro_default_datagroup
+persist_with: lucro_datagroup
 
 explore: challenge_tasks {
   join: tasks {
@@ -23,6 +23,20 @@ explore: challenge_tasks {
   }
 }
 
+explore: info_user {
+  join: users_location {
+    type: left_outer
+    sql_on: ${info_user.user_id} = ${users_location.user_id} ;;
+    relationship: one_to_one
+  }
+  join: user_banks {
+    type: left_outer
+    sql_on: ${info_user.user_id} = ${user_banks.user_id} ;;
+    relationship: many_to_one
+  }
+}
+
+
 explore: challenge_user_activity {
 
   join: users {
@@ -30,6 +44,7 @@ explore: challenge_user_activity {
     sql_on: ${challenge_user_activity.user_id} = ${users.user_id} ;;
     relationship: many_to_one
   }
+
   join: users_location {
     type: left_outer
     sql_on: ${users_location.user_id} = ${users.user_id} ;;
